@@ -34,8 +34,8 @@ steps:
       - ssh-keyscan $KUBERNETES_HOST >> ~/.ssh/known_hosts
       - mkdir -p ~/.kube
       - sshpass -p $KUBERNETES_PASSWORD scp $KUBERNETES_USER@$KUBERNETES_HOST:~/.kube/config ~/.kube/config
-      - envsubst < deploy/production.template > deploy/production.yaml
-      - kubectl --kubeconfig=/root/.kube/config --server="https://$KUBERNETES_HOST:6443" --insecure-skip-tls-verify apply -f deploy/production.yaml
+      - envsubst < deploy/development.template > deploy/development.yaml
+      - kubectl --kubeconfig=/root/.kube/config --server="https://$KUBERNETES_HOST:6443" --insecure-skip-tls-verify apply -f deploy/development.yaml
     when:
       branch:
         - master
