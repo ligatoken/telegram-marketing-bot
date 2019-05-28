@@ -15,7 +15,7 @@ type: kubernetes.io/dockerconfigjson
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: ${DRONE_REPO_NAME}-stage-deployment
+  name: ${DRONE_REPO_NAME}-deployment
   namespace: ${DRONE_REPO_NAME}
 spec:
   replicas: 1
@@ -27,11 +27,11 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      application: ${DRONE_REPO_NAME}-stage
+      application: ${DRONE_REPO_NAME}
   template:
     metadata:
       labels:
-        application: ${DRONE_REPO_NAME}-stage
+        application: ${DRONE_REPO_NAME}
       annotations:
         revision: "${DRONE_BUILD_NUMBER}"
     spec:
@@ -39,10 +39,8 @@ spec:
         zone: dev
       containers:
         - name: ${DRONE_REPO_NAME}-stage
-          image: registry.ligatokens.io/${DRONE_REPO_NAME}:develop
+          image: registry.ligatokens.io/${DRONE_REPO_NAME}:mater
           imagePullPolicy: Always
-          command: ["/bin/sh"]
-          args: ["-c", "cd /usr/golang/ && bin/server"] 
           env:
             - name: DB_HOST
               value: pgbouncer-stage-service.postgres
@@ -53,17 +51,17 @@ spec:
             - name: DB_USER
               valueFrom:
                 configMapKeyRef:
-                  name: postgres-stage-config
+                  name: postgres-config
                   key: POSTGRES_USER
             - name: DB_PASSWORD
               valueFrom:
                 configMapKeyRef:
-                  name: postgres-stage-config
+                  name: postgres-config
                   key: POSTGRES_PASSWORD
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: postgres-stage-config
+                  name: postgres-config
                   key: POSTGRES_DB
       imagePullSecrets:
         - name: ligatokensregistry

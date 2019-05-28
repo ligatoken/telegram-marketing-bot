@@ -10,7 +10,7 @@ steps:
       password:
         from_secret: DOCKER_PASSWORD
       registry: registry.ligatokens.io
-      repo: registry.ligatokens.io/ligatokens-frontend
+      repo: registry.ligatokens.io/telegram-marketing-bot
       tags: master
     when:
       branch:
