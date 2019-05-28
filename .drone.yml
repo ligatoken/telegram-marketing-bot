@@ -1,0 +1,43 @@
+kind: pipeline
+name: ligatokens-frontend
+
+steps:
+  - name: docker-master
+    image: plugins/docker
+    settings:
+      username:
+        from_secret: DOCKER_USER
+      password:
+        from_secret: DOCKER_PASSWORD
+      registry: registry.ligatokens.io
+      repo: registry.ligatokens.io/ligatokens-frontend
+      tags: master
+    when:
+      branch:
+        - master
+      event:
+        - push
+
+  - name: deploy-master
+    image: cereris/kubernetes-deploy
+    environment:
+      KUBERNETES_HOST:
+        from_secret: KUBERNETES_HOST
+      KUBERNETES_USER:
+        from_secret: KUBERNETES_USER
+      KUBERNETES_PASSWORD:
+        from_secret: KUBERNETES_PASSWORD
+      DOCKER_TOKEN:
+        from_secret: DOCKER_TOKEN
+    commands:
+      - mkdir -p /root/.ssh/
+      - ssh-keyscan $KUBERNETES_HOST >> ~/.ssh/known_hosts
+      - mkdir -p ~/.kube
+      - sshpass -p $KUBERNETES_PASSWORD scp $KUBERNETES_USER@$KUBERNETES_HOST:~/.kube/config ~/.kube/config
+      - envsubst < deploy/production.template > deploy/production.yaml
+      - kubectl --kubeconfig=/root/.kube/config --server="https://$KUBERNETES_HOST:6443" --insecure-skip-tls-verify apply -f deploy/production.yaml
+    when:
+      branch:
+        - master
+      event:
+        - push
